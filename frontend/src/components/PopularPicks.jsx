@@ -166,22 +166,8 @@ const PopularPicks = () => {
         rafRef.current = requestAnimationFrame(() => {
             updateArrowVisibility();
 
-            // --- ensure first column is flush-left on mobile (ONLY) ---
-            try {
-                const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-                if (isMobile && el) {
-                    const children = Array.from(el.children);
-                    if (children.length) {
-                        const firstChild = children[0];
-                        if (firstChild) {
-                            // Use scrollIntoView on the first child to guarantee alignment to the container's visible left edge
-                            firstChild.scrollIntoView({ behavior: "auto", inline: "start" });
-                        }
-                    }
-                }
-            } catch (err) {
-                // noop
-            }
+            // NOTE: Removed forced scrollIntoView here to avoid resetting inner scroll
+            // when the component becomes visible (e.g. via anchor/hash navigation).
         });
 
         // attach scroll listener
@@ -189,27 +175,13 @@ const PopularPicks = () => {
             el.addEventListener("scroll", onScrollDebounced, { passive: true });
         }
 
-        // handle window resize to recompute clientWidth/scrollWidth and keep first col flush on mobile
+        // handle window resize to recompute clientWidth/scrollWidth
         const onResize = () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
             rafRef.current = requestAnimationFrame(() => {
                 updateArrowVisibility();
 
-                try {
-                    const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-                    if (isMobile && el) {
-                        const children = Array.from(el.children);
-                        if (children.length) {
-                            const firstChild = children[0];
-                            if (firstChild) {
-                                // Use scrollIntoView on the first child to guarantee alignment to the container's visible left edge
-                                firstChild.scrollIntoView({ behavior: "auto", inline: "start" });
-                            }
-                        }
-                    }
-                } catch (err) {
-                    // noop
-                }
+                // NOTE: Removed forced scrollIntoView here as well for the same reason.
             });
         };
         window.addEventListener("resize", onResize);
@@ -308,12 +280,9 @@ const PopularPicks = () => {
 
                             {/* translucent glossy blur overlay for partially visible columns on mobile only */}
                             <div
-                                className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
-                                    shouldBlurCol ? "block md:hidden" : "hidden"
-                                }`}
+                                className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${shouldBlurCol ? "block md:hidden" : "hidden"}`}
                                 aria-hidden="true"
                             >
-                                {/* Softer glossy frosted effect: lighter opacity and small backdrop blur so things beneath are hinted but distorted */}
                                 <div className="w-full h-full glass bg-white/20 backdrop-blur-sm backdrop-saturate-110"></div>
                             </div>
 
