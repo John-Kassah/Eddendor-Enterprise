@@ -5,7 +5,6 @@ const PopularPicks = () => {
     const rafRef = useRef(null);
     const [showLeft, setShowLeft] = useState(false);
     const [showRight, setShowRight] = useState(true);
-    const [blurredCols, setBlurredCols] = useState([]); // column indices that should show the glossy blur
 
     const baseProducts = [
         {
@@ -90,66 +89,7 @@ const PopularPicks = () => {
         setShowLeft(scrollLeft > 0 + tolerance);
         setShowRight(scrollLeft + clientWidth < scrollWidth - tolerance);
 
-        // ---------- compute blurred columns (mobile-focused UX) ----------
-        try {
-            const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-            if (!isMobile) {
-                if (blurredCols.length) setBlurredCols([]);
-                return;
-            }
-
-            const children = Array.from(el.children);
-            if (!children.length) {
-                if (blurredCols.length) setBlurredCols([]);
-                return;
-            }
-
-            const colsCount = Math.ceil(children.length / 2);
-            const visibleLeft = scrollLeft;
-            const visibleRight = scrollLeft + clientWidth;
-
-            const newBlurred = [];
-
-            for (let col = 0; col < colsCount; col++) {
-                const topIdx = col * 2;
-                const bottomIdx = topIdx + 1;
-                const topChild = children[topIdx];
-                const bottomChild = children[bottomIdx];
-
-                if (!topChild) continue;
-
-                const leftTop = topChild.offsetLeft;
-                const rightTop = leftTop + topChild.offsetWidth;
-
-                let fullyVisibleTop = leftTop >= visibleLeft - tolerance && rightTop <= visibleRight + tolerance;
-                let partiallyVisibleTop = !(rightTop <= visibleLeft + tolerance || leftTop >= visibleRight - tolerance);
-
-                let fullyVisibleBottom = true;
-                let partiallyVisibleBottom = false;
-                if (bottomChild) {
-                    const leftBottom = bottomChild.offsetLeft;
-                    const rightBottom = leftBottom + bottomChild.offsetWidth;
-                    fullyVisibleBottom = leftBottom >= visibleLeft - tolerance && rightBottom <= visibleRight + tolerance;
-                    partiallyVisibleBottom = !(rightBottom <= visibleLeft + tolerance || leftBottom >= visibleRight - tolerance);
-                }
-
-                const columnFullyVisible = fullyVisibleTop && fullyVisibleBottom;
-                const columnPartiallyVisible = (partiallyVisibleTop || partiallyVisibleBottom) && !columnFullyVisible;
-
-                if (columnPartiallyVisible) {
-                    newBlurred.push(col);
-                }
-            }
-
-            const same =
-                newBlurred.length === blurredCols.length &&
-                newBlurred.every((v, i) => v === blurredCols[i]);
-            if (!same) setBlurredCols(newBlurred);
-        } catch (err) {
-            // defensive: don't let visual calc break functionality
-            // eslint-disable-next-line no-console
-            console.error("updateArrowVisibility (blur calc) error:", err);
-        }
+        // NOTE: blur logic was intentionally removed so no overlay or glossy state is computed here.
     };
 
     // debounced via requestAnimationFrame for smooth/low-cost updates
@@ -165,9 +105,6 @@ const PopularPicks = () => {
         // initial measurement (use rAF to ensure layout has settled)
         rafRef.current = requestAnimationFrame(() => {
             updateArrowVisibility();
-
-            // NOTE: Removed forced scrollIntoView here to avoid resetting inner scroll
-            // when the component becomes visible (e.g. via anchor/hash navigation).
         });
 
         // attach scroll listener
@@ -180,8 +117,6 @@ const PopularPicks = () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
             rafRef.current = requestAnimationFrame(() => {
                 updateArrowVisibility();
-
-                // NOTE: Removed forced scrollIntoView here as well for the same reason.
             });
         };
         window.addEventListener("resize", onResize);
@@ -261,9 +196,6 @@ const PopularPicks = () => {
                 className="grid grid-rows-2 grid-flow-col gap-6 overflow-x-auto overflow-y-hidden scrollbar-hide scroll-smooth"
             >
                 {products.map((product, idx) => {
-                    const colIndex = Math.floor(idx / 2);
-                    const shouldBlurCol = blurredCols.includes(colIndex);
-
                     return (
                         <div
                             key={product.id}
@@ -276,14 +208,6 @@ const PopularPicks = () => {
                                     alt={product.name}
                                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.08]"
                                 />
-                            </div>
-
-                            {/* translucent glossy blur overlay for partially visible columns on mobile only */}
-                            <div
-                                className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${shouldBlurCol ? "block md:hidden" : "hidden"}`}
-                                aria-hidden="true"
-                            >
-                                <div className="w-full h-full glass bg-white/20 backdrop-blur-sm backdrop-saturate-110"></div>
                             </div>
 
                             {/* Content */}
