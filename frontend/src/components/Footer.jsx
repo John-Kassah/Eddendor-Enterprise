@@ -15,7 +15,7 @@ const Footer = () => {
                     <div className="flex items-center mb-6">
                         <div className="p-1 mr-0">
                             <div className="bg-blue-900 px-2 py-1 text-white font-bold text-lg rounded-lg shadow-lg shadow-blue-500/80">
-                                ED
+                                EM
                             </div>
                         </div>
                         <div className="p-1 ml-0">
@@ -24,7 +24,7 @@ const Footer = () => {
                             </div>
                         </div>
                         <span className="text-2xl font-bold tracking-wide">
-                            Eddendor Enterprise
+                            Ed-Michaels Enterprise
                         </span>
                     </div>
                     <p className="text-sm leading-relaxed text-gray-400">
@@ -112,7 +112,7 @@ const Footer = () => {
             <div className="border-t border-gray-700 mt-12">
                 <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 space-y-4 md:space-y-0">
                     <p>
-                        © {new Date().getFullYear()} Eddendor Enterprise. All rights reserved.
+                        © {new Date().getFullYear()} Ed-Michaels Enterprise. All rights reserved.
                     </p>
                     <div className="flex items-center space-x-4">
                         <p>Built with ❤️ for quality and trust.</p>

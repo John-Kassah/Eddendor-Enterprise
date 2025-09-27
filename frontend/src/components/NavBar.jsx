@@ -33,7 +33,7 @@ const Navbar = () => {
     <div className="flex items-center gap-0">
       <div className="p-1 mr-0">
         <div className="bg-blue-900 px-2 py-1 text-white font-bold text-lg rounded-lg shadow-lg shadow-blue-500/80">
-          ED
+          EM
         </div>
       </div>
       <div className="p-1 ml-0">
